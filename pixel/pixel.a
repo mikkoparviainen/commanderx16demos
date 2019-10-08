@@ -1,0 +1,102 @@
+!to "pixel.prg", cbm
+
+verareg=$9f20
+veralo  = verareg+0
+veramid = verareg+1
+verahi  = verareg+2
+veradat = verareg+3
+veradat2= verareg+4
+veractl = verareg+5
+veraien = verareg+6
+veraisr = verareg+7
+
+vreg_cmp  = $F0000
+vreg_pal  = $F1000
+vreg_lay1 = $F2000
+vreg_lay2 = $F3000
+vreg_spr  = $F4000
+vreg_sprd = $F5000
+
+bsout=$FFD2
+
+*=$0801
+	!byte $0b,$08,$01,$00,$9e,$32,$30,$36,$31,$00,$00,$00
+
+
+	lda #147
+	jsr bsout ; clear screen
+
+	; print characters.
+	lda #$20 ; $00000, increment 2
+	sta verahi
+	lda #$01 ; 'A'
+	tax
+-	sta veradat ; print 'A'
+	inx
+	txa
+	cpx #$40
+	bcc -
+
+	jsr vera_init ; set 8bpp bitmap mode
+
+	lda #0
+	sta veralo
+	sta veramid
+	lda #$10
+	sta verahi ; $00000 - start of graph mem and inc = 1
+
+	lda #00
+	tax
+	lda #$01
+-	sta veradat
+	dex
+	bne -
+
+	lda #$00
+	tax
+-	dex
+	bne -
+	jsr text_mode ; set text mode back
+	rts
+
+vera_init:
+	 lda #$0
+	 sta veractl ; addrsel=0, no reset
+	 sta veralo
+	 lda #$20
+	 sta veramid
+	 lda #$0F 
+	 sta verahi ; $F2000, increment 0 - layer 0 register 0
+	 lda #$E1 ; mode bitmap 8bpp, enabled 
+	 sta veradat ; set mode
+	 lda #$01 
+	 sta veralo ; $F2001
+	 lda #$00
+	 sta veradat ; TILEW=0  -> 320 px
+	 lda #$04
+	 sta veralo
+	 lda #0
+	 sta veradat ; TILEBASE_LO = 0
+	 lda #$05
+	 sta veralo
+	 lda #0
+	 sta veradat ; TILEBASE_HI = 0
+
+	 lda #$0
+	 ;sta veralo
+	 sta veramid
+	 lda #$F0
+	 sta verahi ; $F0000 
+	 lda #$01
+	 sta veralo ; $F0001
+	 lda #64 ; HSCALE = 64 -> 2 pixels per write
+	 sta veradat
+	 lda #$02 ; $F0002
+	 sta veralo
+	 lda #64 
+	 sta veradat ; VSCALE = 64 -> 2 pixels per write
+
+	 rts
+
+text_mode:
+	rts
