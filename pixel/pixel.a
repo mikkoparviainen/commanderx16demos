@@ -17,27 +17,13 @@ vreg_lay2 = $F3000
 vreg_spr  = $F4000
 vreg_sprd = $F5000
 
-bsout=$FFD2
-
 *=$0801
 	!byte $0b,$08,$01,$00,$9e,$32,$30,$36,$31,$00,$00,$00
 
-
-	lda #147
-	jsr bsout ; clear screen
-
-	; print characters.
-	lda #$20 ; $00000, increment 2
-	sta verahi
-	lda #$01 ; 'A'
-	tax
--	sta veradat ; print 'A'
-	inx
-	txa
-	cpx #$40
-	bcc -
-
 	jsr vera_init ; set 8bpp bitmap mode
+	lda #00
+	sta colour
+	jsr clear_screen
 
 	lda #0
 	sta veralo
@@ -47,7 +33,7 @@ bsout=$FFD2
 
 	lda #00
 	tax
-	lda #$01
+	lda #04
 -	sta veradat
 	dex
 	bne -
@@ -61,7 +47,19 @@ bsout=$FFD2
 
 vera_init:
 	 lda #$0
-	 sta veractl ; addrsel=0, no reset
+	 sta veramid
+	 lda #$0F
+	 sta verahi ; $F0000 
+	 lda #$01
+	 sta veralo ; $F0001
+	 lda #64 ; HSCALE = 64 -> 2 pixels per write
+	 sta veradat
+	 lda #$02 ; $F0002
+	 sta veralo
+	 lda #64 
+	 sta veradat ; VSCALE = 64 -> 2 pixels per write
+
+	 lda #$0
 	 sta veralo
 	 lda #$20
 	 sta veramid
@@ -82,21 +80,40 @@ vera_init:
 	 lda #0
 	 sta veradat ; TILEBASE_HI = 0
 
-	 lda #$0
-	 ;sta veralo
-	 sta veramid
-	 lda #$F0
-	 sta verahi ; $F0000 
-	 lda #$01
-	 sta veralo ; $F0001
-	 lda #64 ; HSCALE = 64 -> 2 pixels per write
-	 sta veradat
-	 lda #$02 ; $F0002
-	 sta veralo
-	 lda #64 
-	 sta veradat ; VSCALE = 64 -> 2 pixels per write
-
 	 rts
 
 text_mode:
 	rts
+
+clear_screen:
+	lda #$0
+	sta veralo
+	sta veramid
+	lda #$10
+	sta verahi ; $00000, increment 1
+	lda #$FF
+	tay
+--	lda #$F0
+	tax
+	lda colour
+-	sta veradat
+	dex
+	bne -
+	dey
+    beq +
+    jmp --
++   lda #65
+	tay
+--	lda #$F0
+	tax
+	lda colour
+-	sta veradat
+	dex
+	bne -
+	dey
+    beq +
+    jmp --
+
++	rts
+
+colour: !byte $00
