@@ -25,29 +25,9 @@ pixhi = pixmid+1
 	!byte $0b,$08,$01,$00,$9e,$32,$30,$36,$31,$00,$00,$00
 
 	jsr vera_init_320x240_8bpp ; set 8bpp bitmap mode
-	lda #01
-	sta colour
-	jsr clear_screen
-
 	lda #00
 	sta colour
-
-	lda #$00
-	tay
--	tya
-	sta x
-	sta y
-	jsr draw_pixel
-	iny
-	cpy #$FE
-	bne -
-
-	lda #$5
-	sta colour
-	lda #0
-	sta x
-	sta y
-	jsr draw_pixel
+	jsr clear_screen
 
 	; randomize pixels
 -	lda #<320
