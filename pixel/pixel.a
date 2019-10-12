@@ -24,7 +24,7 @@ pixhi = pixmid+1
 *=$0801
 	!byte $0b,$08,$01,$00,$9e,$32,$30,$36,$31,$00,$00,$00
 
-	jsr vera_init ; set 8bpp bitmap mode
+	jsr vera_init_320x240_8bpp ; set 8bpp bitmap mode
 	lda #01
 	sta colour
 	jsr clear_screen
@@ -42,13 +42,39 @@ pixhi = pixmid+1
 	cpy #$FE
 	bne -
 
-	rts
 	lda #$5
 	sta colour
 	lda #0
 	sta x
 	sta y
 	jsr draw_pixel
+
+	; randomize pixels
+-	lda #<320
+	sta bound
+	lda #>320
+	sta bound+1 
+	jsr getrandom_bounded
+	lda brandom
+	sta x
+	lda brandom+1
+	sta x+1
+
+	lda #<240
+	sta bound
+	lda #>240
+	sta bound+1
+	jsr getrandom_bounded
+	lda brandom
+	sta y
+	lda brandom+1
+	sta y+1
+
+	jsr getrandom_bounded
+	lda random
+	sta colour
+	jsr draw_pixel
+	jmp -
 
 	rts
 
@@ -124,7 +150,7 @@ draw_pixel:
 
 	rts
 
-vera_init:
+vera_init_320x240_8bpp:
 	 lda #$0
 	 sta veramid
 	 lda #$0F
@@ -196,3 +222,57 @@ clear_screen:
 +	rts
 
 colour: !byte $00
+
+bound: !byte $00, $00
+brandom: !byte $00, $00
+; this bounds the rng value to bound
+; assumes bound < 512 which it is for our graph demo purposes
+getrandom_bounded:
+-	jsr getrandom
+	lda random
+	sta brandom
+	lda random+1
+	and #$01 ; we only ever need the first bit of the higher byte
+	         ; as we know what we're doing
+	sta brandom+1
+
+	lda bound+1
+	cmp brandom+1
+	bcc - ; upper byte of bound was less than random -> random too big, again
+	beq + ; upper byte of bound was the same as random -> needs to compare lower byte
+	jmp ++ ; upper byte of bound was more than random -> all okay, go away
++	lda bound
+	cmp brandom
+	bcc - ; lower byte of bound was more than random -> random too big, again
+++	rts   ; all okay, go back, bounded in brandom and brandom+1
+
+;---------------------------------------------------------------------------
+;pseudo-random routine, value in random+1 (akku also) and random
+;source: https://codebase64.org/doku.php?id=base:16bit_pseudo_random_generator
+;---------------------------------------------------------------------------
+getrandom:
+
+         lda random+1
+         sta tempr
+         lda random
+         asl
+         rol tempr
+         asl
+         rol tempr
+         clc
+         adc random
+         pha
+         lda tempr
+         adc random+1
+         sta random+1
+         pla
+         adc #$11
+         sta random
+         lda random+1
+         adc #$36
+         sta random+1
+
+         rts
+
+tempr:   !byte $5a
+random:  !byte %10011101,%01011011
