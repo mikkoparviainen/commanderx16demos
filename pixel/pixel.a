@@ -17,13 +17,34 @@ vreg_lay2 = $F3000
 vreg_spr  = $F4000
 vreg_sprd = $F5000
 
+pixlo = $FB
+pixmid = pixlo+1
+pixhi = pixmid+1
+
 *=$0801
 	!byte $0b,$08,$01,$00,$9e,$32,$30,$36,$31,$00,$00,$00
 
 	jsr vera_init ; set 8bpp bitmap mode
-	lda #00
+	lda #01
 	sta colour
 	jsr clear_screen
+
+	lda #1
+	sta x
+	lda #0
+	sta y
+	lda #00
+	sta colour
+	jsr draw_pixel
+
+	lda #$FE
+	tay
+-	tya
+	sta x
+	sta y
+	jsr draw_pixel
+	dey
+	bne -
 
 	lda #0
 	sta veralo
@@ -43,6 +64,86 @@ vreg_sprd = $F5000
 -	dex
 	bne -
 	jsr text_mode ; set text mode back
+	rts
+
+; parameters for the pixel - faster to do it this way
+x: !byte $00, $00
+y: !byte $00, $00
+
+draw_pixel:
+	; assumes that y < 512 x < 512
+	lda #$00
+	sta pixhi
+	sta pixmid
+	sta pixlo ; empty working area
+
+	lda y
+	sta pixmid
+	lda y+1
+	sta pixhi ; pixlo-pixmid-pixhi = 256 * y
+
+	lda y
+	asl
+	asl
+	asl
+	asl
+	asl
+	asl
+	sta pixlo ; pixlo = 64 * y
+	
+	lda y
+	lsr
+	lsr 
+	clc
+	adc pixmid
+	sta pixmid
+	lda #0
+	adc pixhi
+	sta pixhi ; pixmid:pixhi += 64 * y
+
+	lda y+1
+	asl
+	asl
+	asl
+	asl
+	asl
+	asl
+	clc
+	adc pixmid
+	lda #0
+	adc pixhi
+
+	; now pixlo:pixmid:pixhi = 320 * y
+
+	lda x
+	clc
+	adc pixlo
+	sta pixlo
+	lda #0
+	adc pixmid
+	sta pixmid
+	lda #0
+	adc pixhi
+	sta pixhi 
+
+	lda x+1
+	clc
+	adc pixmid
+	sta pixmid
+	lda #0
+	adc pixhi
+	sta pixhi ; pixlo:pixmid:pixhi += x
+
+	lda pixlo
+	sta veralo
+	lda pixmid
+	sta veramid
+	lda pixhi
+	sta verahi ; veralo:veramid:verahi = pos of pixel, inc=0
+
+	lda colour
+	sta veradat ; print pixel
+
 	rts
 
 vera_init:
