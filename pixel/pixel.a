@@ -32,14 +32,23 @@ pixhi = pixmid+1
 	lda #00
 	sta colour
 
-	lda #$FE
+	lda #$00
 	tay
 -	tya
 	sta x
 	sta y
 	jsr draw_pixel
-	dey
+	iny
+	cpy #$FE
 	bne -
+
+	rts
+	lda #$5
+	sta colour
+	lda #0
+	sta x
+	sta y
+	jsr draw_pixel
 
 	rts
 
