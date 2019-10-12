@@ -119,20 +119,12 @@ draw_pixel:
 	clc
 	adc pixlo
 	sta pixlo
-	lda #0
-	adc pixmid
-	sta pixmid
-	lda #0
-	adc pixhi
-	sta pixhi 
-
 	lda x+1
-	clc
 	adc pixmid
 	sta pixmid
 	lda #0
 	adc pixhi
-	sta pixhi ; pixlo:pixmid:pixhi += x
+	sta pixhi  ; pixlo:pixmid:pixhi += x
 
 	lda pixlo
 	sta veralo
