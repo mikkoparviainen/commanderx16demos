@@ -29,13 +29,8 @@ pixhi = pixmid+1
 	sta colour
 	jsr clear_screen
 
-	lda #1
-	sta x
-	lda #0
-	sta y
 	lda #00
 	sta colour
-	jsr draw_pixel
 
 	lda #$FE
 	tay
@@ -46,24 +41,6 @@ pixhi = pixmid+1
 	dey
 	bne -
 
-	lda #0
-	sta veralo
-	sta veramid
-	lda #$10
-	sta verahi ; $00000 - start of graph mem and inc = 1
-
-	lda #00
-	tax
-	lda #04
--	sta veradat
-	dex
-	bne -
-
-	lda #$00
-	tax
--	dex
-	bne -
-	jsr text_mode ; set text mode back
 	rts
 
 ; parameters for the pixel - faster to do it this way
