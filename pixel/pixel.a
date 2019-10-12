@@ -246,33 +246,50 @@ getrandom_bounded:
 	bcc - ; lower byte of bound was more than random -> random too big, again
 ++	rts   ; all okay, go back, bounded in brandom and brandom+1
 
-;---------------------------------------------------------------------------
-;pseudo-random routine, value in random+1 (akku also) and random
-;source: https://codebase64.org/doku.php?id=base:16bit_pseudo_random_generator
-;---------------------------------------------------------------------------
 getrandom:
-
-         lda random+1
-         sta tempr
-         lda random
-         asl
-         rol tempr
-         asl
-         rol tempr
-         clc
-         adc random
-         pha
-         lda tempr
-         adc random+1
-         sta random+1
-         pla
-         adc #$11
-         sta random
-         lda random+1
-         adc #$36
-         sta random+1
-
-         rts
-
-tempr:   !byte $5a
-random:  !byte %10011101,%01011011
+		jsr rand64k       ;Factors of 65535: 3 5 17 257
+		jsr rand32k       ;Factors of 32767: 7 31 151 are independent and can be combined
+		lda sr1+1         ;can be left out 
+		eor sr2+1         ;if you dont use
+		tay               ;y as suggested
+		lda sr1           ;mix up lowbytes of SR1
+		eor sr2           ;and SR2 to combine both 
+		sta random
+		tya
+		sta random+1
+		rts
+ 
+;periode with 65535
+;10+12+13+15
+rand64k:
+		lda sr1+1
+		asl
+		asl
+		eor sr1+1
+		asl
+		eor sr1+1
+		asl
+		asl
+		eor sr1+1
+		asl
+		rol sr1         ;shift this left, "random" bit comes from low
+		rol sr1+1
+		rts
+ 
+;periode with 32767
+;13+14
+rand32k:
+		lda sr2+1
+		asl
+		eor sr2+1
+		asl
+		asl
+		ror sr2         ;shift this right, random bit comes from high - nicer when eor with sr1
+		rol sr2+1
+		rts
+ 
+;feel free to set seeds as wished, if put in zeropage some speed-boost is 
+;the result. For example sr1=$5c sr2=5e would fit
+sr1:	!word $a55a
+sr2:	!word $7653
+random: !byte $00, $00
