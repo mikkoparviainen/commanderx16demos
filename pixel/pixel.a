@@ -246,6 +246,11 @@ getrandom_bounded:
 	bcc - ; lower byte of bound was more than random -> random too big, again
 ++	rts   ; all okay, go back, bounded in brandom and brandom+1
 
+; the rng code from 
+; https://codebase64.org/doku.php?id=base:two_very_fast_16bit_pseudo_random_generators_as_lfsr
+;© 2007 Hanno Behrens (pebbles@schattenlauf.de)
+;LGPL Licence
+
 getrandom:
 		jsr rand64k       ;Factors of 65535: 3 5 17 257
 		jsr rand32k       ;Factors of 32767: 7 31 151 are independent and can be combined
