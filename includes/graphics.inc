@@ -17,6 +17,8 @@ vreg_lay2 = $F3000
 vreg_spr  = $F4000
 vreg_sprd = $F5000
 
+vera_reset = $FF81
+
 pixlo = $FB
 pixmid = pixlo+1
 pixhi = pixmid+1
@@ -135,9 +137,6 @@ vera_init_320x240_8bpp:
 	 sta veradat ; TILEBASE_HI = 0
 
 	 rts
-
-text_mode:
-	rts
 
 clear_screen:
 	lda #$0
