@@ -3,6 +3,8 @@
 !source "../includes/system.inc"
 !source "../includes/graphics.inc"
 
+GETIN=$ffe4
+
 *=$0801
 	+basic_sys
 
@@ -36,6 +38,9 @@
 	lda random
 	sta colour
 	jsr draw_pixel
-	jmp -
+
+	jsr GETIN
+	cmp #00
+	beq -
 
 	rts
