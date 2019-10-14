@@ -17,6 +17,7 @@ of course possible and a good learning experience.
 The demos are meant to be examples of how to program the CX16 and not complete
 useful programs.
 
+
 ### Pixel drawing demo
 
 This demo initializes the VERA graphics mode, clears the screen, and then draws pixels
@@ -89,6 +90,34 @@ also does not reset the graphics mode. The random number generator is slow, but
 might represent the game logic in a possible game.
 
 I am sure the routines can be optimized and I'm happy to listen to improvements.
+
+
+## Includes
+
+There is one include file at the moment. The include files are in the `includes`
+directory.
+
+### `system.inc`
+
+This include file contains the macro `basic_sys` and the pseudo random functions
+`getrandom_bounded` and `getrandom`.
+
+The macro `basic_sys` just inserts the line "1 SYS2061" into the code. This is
+meant to be used after `*=$0801` so the program can be run with just `RUN`.
+
+The function `getrandom` calculates sixteen bits of random number into the bytes
+`random` and `random+1`.
+
+The function `getrandom_bounded` gets the 16-bit bound from the memory locations
+`bound` and `bound+1`. It then gets a random number from the `getrandom` and
+sees if the number is less than the bound. If not, it tries again. For purposes
+of these demos, the random numbers are assumed to be less than 512, so the function
+masks away the higher bits. This is to make it faster to get random numbers -
+trying to get a number less than 320 when randomizing all the 65536 values would
+take too much time.
+
+The randomness of the bits is not that high, though, but it's sufficient for demo
+purposes.
 
 ## Licensing
 
