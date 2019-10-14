@@ -43,4 +43,5 @@ GETIN=$ffe4
 	cmp #00
 	beq -
 
+	jsr vera_reset
 	rts
