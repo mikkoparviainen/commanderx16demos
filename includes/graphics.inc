@@ -107,6 +107,41 @@ draw_pixel:
 
 	rts
 
+; uses the same x and y as the pixel draw
+; length of the line - has to be two bytes
+; as for now, no check on going over the end of the row
+hline_len: !byte $00, $00
+hline:
+	pha ; save a, x and y registers
+	txa
+	pha
+	tya
+	pha
+	+PIXPOS x, y
+
+	lda pixlo
+	sta veralo
+	lda pixmid
+	sta veramid
+	lda pixhi
+	ora #$10 ; set the increment to 1
+	sta verahi ; veralo:veramid:verahi = pos of pixel, inc=1
+
+	lda colour
+
+	ldy hline_len ; get the low byte of the loop to y register
+	; TODO: add the second byte
+-	sta veradat
+	dey
+	bne -
+
+	pla
+	tay
+	pla
+	tax
+	pla
+	rts
+
 vera_init_320x240_8bpp:
 	 lda #$0
 	 sta veramid
