@@ -1,0 +1,35 @@
+!to "lines.prg", cbm
+
+!source "../includes/system.inc"
+!source "../includes/graphics.inc"
+
+GETIN=$ffe4
+
+*=$0801
+	+basic_sys
+
+	jsr vera_init_320x240_8bpp ; set 8bpp bitmap mode
+	lda #01
+	sta colour
+	jsr clear_screen
+
+	lda #00
+	sta colour
+	ldy #10
+-	lda #0
+	sta y+1
+	sta x
+	sta x+1
+	tya
+	sta y
+	sta hline_len
+	jsr hline
+	dey
+	bne -
+
+-	jsr GETIN
+	cmp #00
+	beq -
+
+	jsr vera_reset
+	rts
