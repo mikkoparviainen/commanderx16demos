@@ -128,14 +128,19 @@ hline:
 	sta verahi ; veralo:veramid:verahi = pos of pixel, inc=1
 
 	lda colour
-
+	ldx hline_len+1 ; get the high byte of the loop to x register
 	ldy hline_len ; get the low byte of the loop to y register
-	; TODO: add the second byte
+
 -	sta veradat
 	dey
 	bne -
+	cpx #00
+	beq + ; high byte of counter is zero, so we're done
+	dex   ; not done, so decrease x...
+	jmp - ; and start again. y register is zero and
+	      ; gets decreased in the loop so runs again
 
-	pla
++	pla
 	tay
 	pla
 	tax
