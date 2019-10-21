@@ -28,42 +28,40 @@ pixhi = pixmid+1
 ; overwrites this.
 *=$7000
 
-; parameters for the pixel - faster to do it this way
-x: !byte $00, $00
-y: !byte $00, $00
-
-draw_pixel:
-	; assumes that y < 512 x < 512
+; This macro calculates the pixel position
+; given in .x and .y and inserts it to pixlo-pixmid-pixhi
+!macro PIXPOS .x, .y {
+	; assumes that .y < 512 .x < 512
 	lda #$00
 	sta pixhi
 	sta pixmid
 	sta pixlo ; empty working area
 
-	lda y
+	lda .y
 	sta pixmid
-	lda y+1
-	sta pixhi ; pixlo-pixmid-pixhi = 256 * y because this is shifting by 8 bits
+	lda .y+1
+	sta pixhi ; pixlo-pixmid-pixhi = 256 * .y because this is shifting by 8 bits
 
-	lda y
+	lda .y
 	asl
 	asl
 	asl
 	asl
 	asl
-	asl ; shift left six times to get the lower byte of 64*y
-	sta pixlo ; pixlo = 64 * y
+	asl ; shift left six times to get the lower byte of 64*.y
+	sta pixlo ; pixlo = 64 * .y
 	
-	lda y
+	lda .y
 	lsr
-	lsr ; shift right two times to get the upper byte of 64*y
+	lsr ; shift right two times to get the upper byte of 64*.y
 	clc
 	adc pixmid
 	sta pixmid ; add that to the mid byte
 	lda #0
 	adc pixhi ; add possible carry to upper byte
-	sta pixhi ; pixmid:pixhi += 64 * y
+	sta pixhi ; pixmid:pixhi += 64 * .y
 
-	lda y+1
+	lda .y+1
 	asl
 	asl
 	asl
@@ -72,22 +70,30 @@ draw_pixel:
 	asl ; shift left six times to get the lower byte of the shifted upper byte
 	clc
 	adc pixmid
-	lda #0    ; here we assume the y+1 byte is either #$00 or #$01 because 
+	lda #0    ; here we assume the .y+1 byte is either #$00 or #$01 because 
 	adc pixhi ; pixel coordinates are less than 320 (or 240) anyway
 	          ; so no bits to add to the pixhi
 
-	; now pixlo:pixmid:pixhi = 320 * y
+	; now pixlo:pixmid:pixhi = 320 * .y
 
-	lda x
+	lda .x
 	clc
 	adc pixlo
 	sta pixlo
-	lda x+1
+	lda .x+1
 	adc pixmid
 	sta pixmid
 	lda #0
 	adc pixhi
-	sta pixhi  ; pixlo:pixmid:pixhi += x
+	sta pixhi  ; pixlo:pixmid:pixhi += .x
+}
+
+; parameters for the pixel - faster to do it this way
+x: !byte $00, $00
+y: !byte $00, $00
+
+draw_pixel:
+	+PIXPOS x, y
 
 	lda pixlo
 	sta veralo
