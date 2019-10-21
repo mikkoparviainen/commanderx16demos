@@ -16,6 +16,9 @@ GETIN=$ffe4
 	lda #00
 	sta colour
 	ldy #10
+	lda #$01
+	sta hline_len+1 ; draw long horizontal lines
+
 -	lda #0
 	sta y+1
 	sta x
