@@ -8,8 +8,7 @@ but I'm interested in it.
 
 ## Demos
 
-There is only one demo at the moment. They are written for the 
-[ACME compiler](https://github.com/meonwax/acme) but can probably be reasonably easily
+The demos are written for the [ACME compiler](https://github.com/meonwax/acme) but can probably be reasonably easily
 ported to other ones. I have written these using the CX16 320x240 8bpp mode (mode 7), because
 it has the easiest pixels to use. Modifying the code to work in other modes is
 of course possible and a good learning experience.
@@ -31,6 +30,14 @@ The random number generator is not by me, see the license section.
 The demo still does not have any way to stop it, so reset the computer to stop it. It
 also does not reset the graphics mode. The random number generator is slow, but
 might represent the game logic in a possible game.
+
+### Line drawing demo
+
+This demo initializes the VERA graphics mode, clears the screen, and then
+draws various line demos.
+
+At the moment there is only the horizontal line drawing example. It draws
+ten horizontal lines to lines 0-10, with line length 256-265.
 
 ## Includes
 
@@ -85,11 +92,8 @@ set color. It needs to do the double looping twice, because 320x240 is more than
 the VERA functionality for increasing the index after each write, so the meat of the
 loop is just the `sta veradat`.
 
-The function `draw_pixel` draws a pixel in the coordinates given in the memory
-locations `x` and `y`. These are 16-bit values, because in this mode at least
-the X coordinate can be more than 255, and to be more future proof the Y coordinate
-is treated as such. This function assumes a useful input of less than 512 for
-each coordinate and it ignores the bits 1-7 of the upper bytes of the parameters.
+The macro `PIXPOS` is used to calculate the pixel position in `draw_pixel` and
+`hline`.
 
 The calculation of the correct graphics memory location is not very clear from the code.
 The basic premise is that the linear position in the memory is calculated with
@@ -126,7 +130,22 @@ After this the result contains `MEMPOS = 320 * Y`. Then we just add the two-byte
 X coordinate to the result to get the final memory position using the regular addition
 algorithm.
 
+The function `draw_pixel` draws a pixel in the coordinates given in the memory
+locations `x` and `y`. These are 16-bit values, because in this mode at least
+the X coordinate can be more than 255, and to be more future proof the Y coordinate
+is treated as such. This function assumes a useful input of less than 512 for
+each coordinate and it ignores the bits 1-7 of the upper bytes of the parameters.
+
+It uses the `PIXPOS` macro to calculate the pixel position.
+
 Finally the result coordinate is sent to VERA and then a color byte written there.
+
+The function `hline` draws a horizontal line. It uses the same X and Y coordinates
+as the `draw_pixel` function at `x` and `y` as the starting point of the line.
+It also uses the `hline_len` for the length of the line towards the right side
+of the screen from the starting position. It does not check for screen
+boundaries, so it's possible to draw a horizontal line spanning more than one
+screen line.
 
 I am sure the routines can be optimized and I'm happy to listen to improvements.
 
