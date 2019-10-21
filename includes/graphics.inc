@@ -144,22 +144,17 @@ clear_screen:
 	sta veramid
 	lda #$10
 	sta verahi ; $00000, increment 1
-	lda #$FF
-	tay
---	lda #$F0
-	tax
 	lda colour
+	ldy #$FF
+--	ldx #$F0
 -	sta veradat
 	dex
 	bne -
 	dey
     beq +
     jmp --
-+   lda #65
-	tay
---	lda #$F0
-	tax
-	lda colour
++   ldy #65
+--	ldx #$F0
 -	sta veradat
 	dex
 	bne -
