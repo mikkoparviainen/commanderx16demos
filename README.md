@@ -153,7 +153,7 @@ I am sure the routines can be optimized and I'm happy to listen to improvements.
 
 The code in this repository is mostly mine. The random number generator
 in the code is from the [Codebase 64](https://codebase64.org) and it's page
-is [this](base:two_very_fast_16bit_pseudo_random_generators_as_lfsr). The license
+is [this](https://codebase64.org/doku.php?id=base:two_very_fast_16bit_pseudo_random_generators_as_lfsr). The license
 of that is LGPL, so if I'm conservative, everything here is also LPGL. I'd argue though
 that using it in this context is using it as a library, so my code wouldn't be LPGL.
 This repository is meant to be more of a demo, and I'm not sure of the commercial 
