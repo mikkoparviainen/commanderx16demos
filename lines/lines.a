@@ -34,5 +34,30 @@ GETIN=$ffe4
 	cmp #00
 	beq -
 
+	lda #01
+	sta colour
+	jsr clear_screen
+
+	lda #00
+	sta colour
+	sta x0+1
+	sta x1+1
+	sta y0+1
+	sta y1+1
+
+	lda #$10
+	sta x0
+	sta y0
+	lda #$20
+	sta x1
+	lda #$15
+	sta y1
+
+	jsr line
+
+-	jsr GETIN
+	cmp #00
+	beq -
+
 	jsr vera_reset
 	rts
