@@ -38,6 +38,23 @@ GETIN=$ffe4
 	sta colour
 	jsr clear_screen
 
+	lda #06
+	sta colour
+	lda #$0F
+	sta y
+	lda #$10
+	sta x
+	lda #00
+	sta y+1
+	sta x+1 ; pixel one above start of line on start x
+	jsr draw_pixel
+	lda #$20
+	sta x
+	jsr draw_pixel ; pixel one above start line on stop x
+	lda #$14
+	sta y
+	jsr draw_pixel ; pixel one above stop of line
+
 	lda #00
 	sta colour
 	sta x0+1
