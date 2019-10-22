@@ -147,6 +147,151 @@ hline:
 	pla
 	rts
 
+
+; The line drawing routine.
+; Inputs: colour, x0, y0, x1, y1
+; most of them on zero page to be fast, all are two bytes
+; See also https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+; The last one is the one used here so the least jumps
+x0=$0010
+y0=$0012
+x1=$0014
+y1=$0016
+; temporary positions in the zero page
+dx=$0018
+dy=$001A
+D=$001C
+step=$001E ; steps are +1 or -1 so one byte is enough
+line:
+	pha ; save a, x and y registers
+	txa
+	pha
+	tya
+	pha
+
+	jmp line_low
+
+
+;assumes: abs(y1 - y0) < abs(x1 - x0) && x0 < x1
+line_low:
+	sec
+	lda x1
+	sbc x0
+	sta dx
+	lda x1+1
+	sbc x0+1
+	sta dx+1 ; dx = x1 - x0
+
+	sec
+	lda y1
+	sbc y0
+	sta dy
+	lda y1+1
+	sbc y0+1
+	sta dy+1 ; dy = y1 - y0
+
+	lda #01
+	sta step
+
+	lda #0
+	cmp dy+1
+	bmi ++ ; if dy > 0 we're okay
+	lda #$FF ; dy < 0 -> switch
+	sta step ; step = -1
+	lda dy+1
+	eor #$FF
+	sta dy+1
+	lda dy
+	eor #$FF
+	clc
+	adc #$01
+	sta dy
+	lda dy+1
+	adc #$00
+	sta dy+1 ; dy = -dy
+++  lda dy
+	asl
+	sta D
+	lda dy+1
+	rol
+	sta D+1 ; D = dy*2
+
+	sec
+	lda D
+	sbc dx
+	sta D
+	lda D+1
+	sbc dx+1
+	sta D+1 ; D = dy*2 - dx
+
+	lda y0
+	sta y
+	lda y0+1
+	sta y+1 ; y = y0
+
+	lda x0
+	sta x
+	lda x0+1
+	sta x+1 ; x = x0
+
+	asl dx
+	rol dx+1 ; dx = 2*dx
+
+	asl dy
+	rol dy+1 ; dy = 2*dy
+
+-	lda x+1
+	cmp x1+1
+	bne ++ ;high bytes differ, continue
+	lda x ; high bytes are the same
+	cmp x1 
+	beq + ; low bytes are also the same -> we're done
+
+++	clc
+	adc #$01
+	sta x
+	lda x+1
+	adc #00 
+	sta x+1 ; x += 1
+
+	jsr draw_pixel
+
+	lda #0
+	cmp D+1
+	bpl ++ ; 0 > D
+	clc
+	lda y
+	adc step
+	sta y
+	lda y+1
+	adc #$00
+	sta y+1 ; y = y+step
+
+	lda D
+	sec
+	sbc dx
+	sta D
+	lda D+1
+	sbc dx+1
+	sta D+1 ; D = D-2*dx
+
+++	lda D
+	clc
+	adc dy
+	sta D
+	lda D+1
+	adc dy+1
+	sta D+1 ; D = D + 2*dy
+
+	jmp - ; and loop
+
++	pla
+	tay
+	pla
+	tax
+	pla
+	rts
+
 vera_init_320x240_8bpp:
 	 lda #$0
 	 sta veramid
