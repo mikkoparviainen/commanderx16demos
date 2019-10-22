@@ -153,14 +153,14 @@ hline:
 ; most of them on zero page to be fast, all are two bytes
 ; See also https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 ; The last one is the one used here so the least jumps
-x0=$0010
-y0=$0012
-x1=$0014
-y1=$0016
+x0=$10
+y0=$12
+x1=$14
+y1=$16
 ; temporary positions in the zero page
-dx=$0018
-dy=$001A
-D=$001C
+dx=$18
+dy=$1A
+D=$1C
 step=$001E ; steps are +1 or -1 so one byte is enough
 line:
 	pha ; save a, x and y registers
@@ -170,7 +170,6 @@ line:
 	pha
 
 	jmp line_low
-
 
 ;assumes: abs(y1 - y0) < abs(x1 - x0) && x0 < x1
 line_low:
