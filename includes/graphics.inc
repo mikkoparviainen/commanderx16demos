@@ -233,6 +233,8 @@ line_low:
 	lda x0+1
 	sta x+1 ; x = x0
 
+	jsr draw_pixel ; draw the first pixel
+
 	asl dx
 	rol dx+1 ; dx = 2*dx
 
