@@ -192,9 +192,8 @@ line_low:
 	lda #01
 	sta step
 
-	lda #0
-	cmp dy+1
-	bmi ++ ; if dy > 0 we're okay
+	lda dy+1
+	bpl ++ ; if dy > 0 we're okay
 	lda #$FF ; dy < 0 -> switch
 	sta step ; step = -1
 	lda dy+1
@@ -257,9 +256,8 @@ line_low:
 
 	jsr draw_pixel
 
-	lda #0
-	cmp D+1
-	bpl ++ ; 0 > D
+	lda D+1
+	bmi ++ ; 0 > D
 	clc
 	lda y
 	adc step
