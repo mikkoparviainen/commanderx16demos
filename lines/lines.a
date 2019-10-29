@@ -1,9 +1,12 @@
 !to "lines.prg", cbm
+!cpu 65c02
 
 !source "../includes/system.inc"
 !source "../includes/graphics.inc"
 
 GETIN=$ffe4
+
+PTR=$20
 
 *=$0801
 	+basic_sys
@@ -57,41 +60,55 @@ GETIN=$ffe4
 
 	lda #00
 	sta colour
-	sta x0+1
-	sta x1+1
-	sta y0+1
-	sta y1+1
 
-	lda #$10
+	lda #<lines
+	sta PTR
+	lda #>lines
+	sta PTR+1
+
+	ldy #0
+
+-	lda (PTR),y
+	cmp #$FF
+	beq + ; we're done here
 	sta x0
+	iny
+	lda (PTR),y
+	sta x0+1
+	iny
+	lda (PTR),y
 	sta y0
-	lda #$20
+	iny
+	lda (PTR),y
+	sta y0+1
+	iny
+
+	lda (PTR),y
 	sta x1
-	lda #$15
+	iny
+	lda (PTR),y
+	sta x1+1
+	iny
+	lda (PTR),y
 	sta y1
+	iny
+	lda (PTR),y
+	sta y1+1
+	iny
 
 	jsr line
-
-	lda #$28
-	sta y0
-	;clc
-	;adc #$01
-	sta y1
-	lda #$10
-	sta x0
-	lda #$64
-	sta x1
-	lda #$00
-	sta x0+1
-	sta x1+1
-	sta y0+1
-	sta y1+1
-
-	jsr line
-
+	jmp -
++
 -	jsr GETIN
 	cmp #00
 	beq -
 
 	jsr vera_reset
 	rts
+
+; the list of lines to draw. Max length needs to be less than 255 bytes
+; because we use the y register to point to these
+lines
+	!word $0010, $0010, $0020, $0015 ; ($10, $10) - ($20, $15) - increasing y
+	!word $0010, $0028, $0064, $0028 ; ($10, $28) - ($64, $28) - zero y
+	!word $FFFF ; end marker
