@@ -72,6 +72,23 @@ GETIN=$ffe4
 
 	jsr line
 
+	lda #$28
+	sta y0
+	;clc
+	;adc #$01
+	sta y1
+	lda #$10
+	sta x0
+	lda #$64
+	sta x1
+	lda #$00
+	sta x0+1
+	sta x1+1
+	sta y0+1
+	sta y1+1
+
+	jsr line
+
 -	jsr GETIN
 	cmp #00
 	beq -
