@@ -194,7 +194,38 @@ line_low:
 	lda #$00
 	sta step+1
 
-	lda dy+1
+	lda #$00
+	cmp dy
+	bne +
+	cmp dy+1
+	bne +    ; see if the line is horizontal
+
+	lda dx   ; it is - use hline to draw it
+	clc
+	adc #$01
+	sta hline_len
+	lda dx+1
+	adc #$00
+	sta hline_len+1
+
+	lda x0
+	sta x
+	lda x0+1
+	sta x+1
+	lda y0
+	sta y
+	lda y0+1
+	sta y+1
+
+	pla ; restore registers
+	tay
+	pla
+	tax
+	pla
+
+	jmp hline
+
++	lda dy+1 ; was not horizontal -> draw it
 	bpl ++ ; if dy > 0 we're okay
 	lda #$FF ; dy < 0 -> switch
 	sta step ; step = -1
