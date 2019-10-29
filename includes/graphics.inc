@@ -161,7 +161,7 @@ y1=$16
 dx=$18
 dy=$1A
 D=$1C
-step=$001E ; steps are +1 or -1 so one byte is enough
+step=$1E
 line:
 	pha ; save a, x and y registers
 	txa
@@ -191,11 +191,14 @@ line_low:
 
 	lda #01
 	sta step
+	lda #$00
+	sta step+1
 
 	lda dy+1
 	bpl ++ ; if dy > 0 we're okay
 	lda #$FF ; dy < 0 -> switch
 	sta step ; step = -1
+	sta step+1
 	lda dy+1
 	eor #$FF
 	sta dy+1
@@ -263,7 +266,7 @@ line_low:
 	adc step
 	sta y
 	lda y+1
-	adc #$00
+	adc step+1
 	sta y+1 ; y = y+step
 
 	lda D
